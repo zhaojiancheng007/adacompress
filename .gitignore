@@ -1,0 +1,10 @@
+data/
+outputs/
+wandb/
+LOG_PATH/
+codec_ckpt/
+ckpt/
+*.pth
+*.pkl
+*.tar
+*.log

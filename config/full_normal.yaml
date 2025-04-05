@@ -1,0 +1,154 @@
+root: outputs
+exp_name: "full_normal"
+gpu: 0,1,2
+gpu_id: 1
+model: "tic_sfma"
+dataset: "PASCALContext"
+dataset_path: "data/PASCAL_MT"
+checkpoint: "ckpt/base_codec_4.pth.tar"
+epochs: 10
+num_workers: 8
+batch_size: 4
+test_batch_size: 4
+aux_learning_rate: 1.e-3
+cuda: True
+amp: False
+save: False
+seed: 42
+save_freq: 5
+save_visual: true
+learning_rate: 1.e-4
+
+LR_SCHEDULER:
+  name: multistep
+  warm_up_epoch: 2
+  decay_steps: 5
+  multisteps: [2,4,8]
+  warmup_lr: 1.e-4
+  min_lr: 1.e-6
+
+
+lmbda_bpp: 0.025
+lmbda_rd: 1.e-2
+
+
+task_lmbda: 1.0
+lmbda_seg: 1 #1
+lmbda_human: 1 #2
+lmbda_sal: 4 #5
+lmbda_normal: 1 #10
+
+TASKS: ['normals']
+#dataset
+TASKS_CONFIG:
+  ALL_TASKS:
+    FLAGVALS:
+      image: 2  # cv2.INTER_CUBIC
+      semseg: 0  # cv2.INTER_NEAREST
+      human_parts: 0
+      sal: 0
+      normals: 2
+    NUM_OUTPUT:
+      semseg: 21
+      human_parts: 7
+      sal: 1
+      normals: 3
+
+DATA:
+  DBNAME: PASCALContext
+  IMG_SIZE: 448
+  RESIZE: [448, 448]  # 测试图像尺寸
+
+FLAGVALS:  # 测试用的插值方式
+  image: 2
+  semseg: 0
+  human_parts: 0
+  sal: 0
+  normals: 2
+
+# MTLoRA
+MODEL:
+  PATH: multilora.pth
+  UPDATE_RELATIVE_POSITION: False
+  SWIN:
+    WINDOW_SIZE: 7
+  DECODER_CHANNELS: [18, 36, 72, 144]
+  DECODER_DOWNSAMPLER: true
+  PER_TASK_DOWNSAMPLER: True
+  DECODER_HEAD:
+    image: 'hrnet'
+    semseg: 'hrnet'
+    human_parts: 'hrnet'
+    sal: 'hrnet'
+    normals: 'hrnet'
+  MTLORA:
+    ENABLED: true
+    BIAS: none ## none / all / lora_only，控制 bias 是否参与训练
+    R: [4, 4, 4, 4]
+    SHARED_SCALE: [4.0, 4.0, 4.0, 4.0]
+    TASK_SCALE: [4.0, 4.0, 4.0, 4.0]
+    DROPOUT: [0.05, 0.05, 0.05, 0.05]
+    TRAINABLE_SCALE_SHARED: false
+    TRAINABLE_SCALE_PER_TASK: false
+    INTERMEDIATE_SPECIALIZATION: false
+    FREEZE_PRETRAINED: true
+    SPLIT_QKV: false
+    SHARED_MODE: matrix
+    QKV_ENABLED: true
+    PROJ_ENABLED: true
+    FC1_ENABLED: true
+    FC2_ENABLED: true
+    DOWNSAMPLER_ENABLED: true
+
+    R_PER_TASK:
+      semseg: [4, 4, 4, 4]
+      normals: [4, 4, 4, 4]
+      sal: [4, 4, 4, 4]
+      human_parts: [4, 4, 4, 4]
+      shared: [4, 4, 4, 4]
+
+    SCALE_PER_TASK:
+      semseg: [4.0, 4.0, 4.0, 4.0]
+      normals: [4.0, 4.0, 4.0, 4.0]
+      sal: [4.0, 4.0, 4.0, 4.0]
+      human_parts: [4.0, 4.0, 4.0, 4.0]
+
+    R_PER_TASK_LIST:
+      - shared: 4
+        semseg: 4
+        normals: 4
+        sal: 4
+        human_parts: 4
+      - shared: 4
+        semseg: 4
+        normals: 4
+        sal: 4
+        human_parts: 4
+      - shared: 4
+        semseg: 4
+        normals: 4
+        sal: 4
+        human_parts: 4
+      - shared: 4
+        semseg: 4
+        normals: 4
+        sal: 4
+        human_parts: 4
+
+    SCALE_PER_TASK_LIST:
+      - semseg: 4.0
+        normals: 4.0
+        sal: 4.0
+        human_parts: 4.0
+      - semseg: 4.0
+        normals: 4.0
+        sal: 4.0
+        human_parts: 4.0
+      - semseg: 4.0
+        normals: 4.0
+        sal: 4.0
+        human_parts: 4.0
+      - semseg: 4.0
+        normals: 4.0
+        sal: 4.0
+        human_parts: 4.0
